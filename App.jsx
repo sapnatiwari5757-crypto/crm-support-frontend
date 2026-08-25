@@ -7,6 +7,8 @@ function App() {
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const API_URL = "https://support-crm-frontend-xx70.onrender.com/api/tickets";
+
 
   const fetchTickets = async () => {
     let url = "http://localhost:8000/api/tickets";
