@@ -7,18 +7,24 @@ function App() {
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const API_URL = "https://support-crm-frontend-xx70.onrender.com/api/tickets";
-
+  
+  // Use environment variable for API URL, fallback to localhost for development
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const API_URL = `${API_BASE_URL}/api/tickets`;
 
   const fetchTickets = async () => {
-    let url = "http://localhost:8000/api/tickets";
+    let url = API_URL;
     const params = [];
     if (statusFilter) params.push(`status=${statusFilter}`);
     if (search) params.push(`search=${search}`);
     if (params.length > 0) url += "?" + params.join("&");
 
-    const res = await fetch(url);
-    setTickets(await res.json());
+    try {
+      const res = await fetch(url);
+      setTickets(await res.json());
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+    }
   };
 
   useEffect(() => {
@@ -26,21 +32,29 @@ function App() {
   }, [search, statusFilter]);
 
   const addTicket = async (ticketData) => {
-    await fetch("http://localhost:8000/api/tickets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(ticketData),
-    });
-    fetchTickets();
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(ticketData),
+      });
+      fetchTickets();
+    } catch (error) {
+      console.error("Error adding ticket:", error);
+    }
   };
 
   const updateStatus = async (ticketId, newStatus) => {
-    await fetch(`http://localhost:8000/api/tickets/${ticketId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    fetchTickets();
+    try {
+      await fetch(`${API_URL}/${ticketId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      fetchTickets();
+    } catch (error) {
+      console.error("Error updating ticket:", error);
+    }
   };
 
   return (
